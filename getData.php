@@ -7,15 +7,16 @@ if(isset($_GET['groupid'])) {
     $this_group_name = $_GET['groupname'];
     processData($fb, $this_group, $this_group_name);
 }
-// Should add an option to change since, until and limit
 
 
 
-function processData($fb, $group_id, $groupname){
+function processData($fb, $group_id, $groupname, $extrastuff = ''){
    // Add a condition for since and until into the link
-   $fbdata = $fb->get(
-        '/'.$group_id.'/feed?fields=message,id,likes{id,name,username},reactions{id,name,username,type},created_time,story,link,picture,status_type,comments{created_time,id,message,from,likes{id,username},reactions{id,type,username},comments{created_time,from,message,id,likes{id,username},reactions{type,id,username}}},from',
+   
+    $fbdata = $fb->get(
+        '/'.$group_id.'/feed?fields=message,id,likes{id,name,username},reactions{id,name,username,type},created_time,story,link,picture,status_type,comments{created_time,id,message,from,likes{id,username},reactions{id,type,username},comments{created_time,from,message,id,likes{id,username},reactions{type,id,username}}},from'.$extrastuff.''
     );
+   // &since=1/1/19&until=4/25/19&limit=500
     $postfeed = $fbdata->getGraphEdge();
     $chatfeed_CSV = array();
     $chatcomments_CSV = array();
@@ -154,10 +155,10 @@ function writeCSV($feed, $comments, $likes, $reactions, $this_group_name){
     ob_clean();
     
     $zip = new ZipArchive();
-    $zipname = ".$this_group_name._chat.zip";
+    $zipname = "{$this_group_name}_chat.zip";
     $zip->open($zipname, ZipArchive::CREATE);
     
-    $chatfeedfilename = ".$this_group_name._chat_feed.csv";
+    $chatfeedfilename = "{$this_group_name}_chat_feed.csv";
     $fp = fopen('php://temp', 'w');
     
     foreach($feed as $line){
@@ -170,7 +171,7 @@ function writeCSV($feed, $comments, $likes, $reactions, $this_group_name){
     
     fclose($fp);
     
-    $commentfeedfilename = ".$this_group_name._chat_comments.csv";
+    $commentfeedfilename = "{$this_group_name}_chat_comments.csv";
     $fp = fopen('php://temp', 'w');
     
     foreach($comments as $line){
@@ -183,7 +184,7 @@ function writeCSV($feed, $comments, $likes, $reactions, $this_group_name){
     
     fclose($fp);
     
-    $likefeedfilename = ".$this_group_name._chat_likes.csv";
+    $likefeedfilename = "{$this_group_name}_chat_likes.csv";
     $fp = fopen('php://temp', 'w');
     foreach($likes as $line){
         fputcsv($fp, $line);
@@ -191,11 +192,11 @@ function writeCSV($feed, $comments, $likes, $reactions, $this_group_name){
     
     rewind($fp);
     
-    $zip->addFromString($likefeedfilename, stream_get_contents($fp));
+    $zip->addFromString(likefeedfilename, stream_get_contents($fp));
     
     fclose($fp);
     
-    $reactionfeedfilename = ".$this_group_name._chat_reactions.csv";
+    $reactionfeedfilename = "{$this_group_name}_chat_reactions.csv";
     $fp = fopen('php://temp', 'w');
     foreach($reactions as $line){
         fputcsv($fp, $line);

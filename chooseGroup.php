@@ -23,7 +23,6 @@ if(isset($_GET['user_login'])) {
     }
 
 
-
 $response = $fb->get(
     '/me/groups?fields=id,name,administrator',
     //'default_access_token'
@@ -42,7 +41,6 @@ do {
         if($group_admin == true){
     
             printf("<li><a href='getData.php?groupid=$group_id&groupname=$group_name'>$group_name</a></li>\n");
-    
         }
     printf("</ul>");
     }
