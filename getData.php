@@ -5,16 +5,18 @@ require_once 'Facebook/autoload.php';
 if(isset($_GET['groupid'])) {
     $this_group = $_GET['groupid'];
     $this_group_name = $_GET['groupname'];
-    processData($fb, $this_group, $this_group_name);
+    $since = $_GET['since'];
+    $until = $_GET['until'];
+    processData($fb, $this_group, $this_group_name, $since, $until);
 }
 
 
 
-function processData($fb, $group_id, $groupname, $extrastuff = ''){
+function processData($fb, $group_id, $groupname, $since, $until){
    // Add a condition for since and until into the link
    
     $fbdata = $fb->get(
-        '/'.$group_id.'/feed?fields=message,id,likes{id,name,username},reactions{id,name,username,type},created_time,story,link,picture,status_type,comments{created_time,id,message,from,likes{id,username},reactions{id,type,username},comments{created_time,from,message,id,likes{id,username},reactions{type,id,username}}},from'.$extrastuff.''
+        '/'.$group_id.'/feed?fields=message,id,likes{id,name,username},reactions{id,name,username,type},created_time,story,link,picture,status_type,comments{created_time,id,message,from,likes{id,username},reactions{id,type,username},comments{created_time,from,message,id,likes{id,username},reactions{type,id,username}}},from&until='.$until.'&since='.$since
     );
    // &since=1/1/19&until=4/25/19&limit=500
     $postfeed = $fbdata->getGraphEdge();
@@ -192,7 +194,7 @@ function writeCSV($feed, $comments, $likes, $reactions, $this_group_name){
     
     rewind($fp);
     
-    $zip->addFromString(likefeedfilename, stream_get_contents($fp));
+    $zip->addFromString($likefeedfilename, stream_get_contents($fp));
     
     fclose($fp);
     
